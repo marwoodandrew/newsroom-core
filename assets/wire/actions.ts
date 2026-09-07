@@ -496,8 +496,16 @@ function initiateDownload(source: string | Blob, filename = '') {
         link.setAttribute('download', '');
     }
 
-    link.href = typeof source === 'string' ? source : URL.createObjectURL(source);
+    const url = typeof source === 'string' ? source : URL.createObjectURL(source);
+    link.href = url;
+
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+
+    if (typeof source !== 'string') {
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
 }
 
 
