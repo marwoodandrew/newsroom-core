@@ -1,7 +1,7 @@
 import functools
 from typing import Any, ClassVar
 from typing_extensions import Self
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_validator, AliasChoices
 
 from content_api.errors import BadParameterValueError
 from newsroom.search.types import BaseSearchRequestArgs
@@ -66,6 +66,14 @@ class NewsApiSearchRequestArgs(BaseSearchRequestArgs):
     priority: str | None = None
     genre: str | None = None
     item_source: str | None = None
+
+    page_size: int = Field(
+        validation_alias=AliasChoices("page_size", "size", "max_results"),
+        default=25,
+        ge=1,
+        le=50,
+        description="page_size greater than or equal to 1 ",
+    )
 
     def to_dict(self, flatten_lists: bool = False, **kwargs):
         data = super().to_dict(**kwargs)
@@ -132,3 +140,19 @@ class NewsApiSearchRequestArgs(BaseSearchRequestArgs):
             raise BadParameterValueError("Only one of `include_fields` or `exclude_fields` can be provided, not both.")
 
         return values
+
+    @field_validator("page", mode="before")
+    def validate_page(cls, value) -> int:
+        """
+        :param value: The value of the page argument to validate must be a positive integer >= 1
+        :return: integer page value
+        """
+        try:
+            parsed_value = int(value)
+        except (ValueError, TypeError):
+            raise BadParameterValueError("Page number must be an integer greater than or equal to 1")
+
+        if parsed_value < 1:
+            raise BadParameterValueError("Page number must be an integer greater than or equal to 1")
+
+        return parsed_value
