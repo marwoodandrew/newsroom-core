@@ -138,7 +138,7 @@ class NewsApiSearchServiceAsync(BaseNewshubSearchService[NewsApiSearchRequestArg
         }
 
         total_items = resp.body.get("_meta", {}).get("total", 0)
-        current_page = search_req.args.page if search_req.args.page > 0 else 1
+        current_page = search_req.args.page
         resp.body["_meta"]["page"] = current_page
         page_size = search_req.args.page_size
 

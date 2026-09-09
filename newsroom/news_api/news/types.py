@@ -67,6 +67,7 @@ class NewsApiSearchRequestArgs(BaseSearchRequestArgs):
     genre: str | None = None
     item_source: str | None = None
 
+    page: int = 1
     page_size: int = Field(
         validation_alias=AliasChoices("page_size", "size", "max_results"),
         default=25,
